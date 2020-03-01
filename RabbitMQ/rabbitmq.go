@@ -54,7 +54,7 @@ func NewRabbitMQSimple(queueName string) *RabbitMQ {
 func (r *RabbitMQ) PublishSimple(message string) {
 	//创建队列
 	_, err := r.channel.QueueDeclare(r.QueueName,
-		false,  //是否持久化
+		false, //是否持久化
 		false, //是否自动删除
 		false, //是否具有排他性
 		false, //是否阻塞处理
@@ -120,4 +120,99 @@ func (r *RabbitMQ) ConsumeSimple() {
 	}()
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
+}
+
+//订阅模式创建RabbitMQ实例
+//不需要消息队列名称，需要指定交换机
+func NewRabbitMQPubSub(exchangeName string) *RabbitMQ {
+	rabbitmq := NewRabbitMQ("", exchangeName, "")
+	var err error
+	//获取connection
+	rabbitmq.conn, err = amqp.Dial(rabbitmq.Mqurl)
+	failOnErr(err, "failed to connect rabbitmq!")
+	//获取channel
+	rabbitmq.channel, err = rabbitmq.conn.Channel()
+	failOnErr(err, "failed to open a channel")
+	return rabbitmq
+}
+
+func (r *RabbitMQ) PublishPub(message string) {
+	err := r.channel.ExchangeDeclare(
+		r.Exchange,
+		"fanout",
+		true,
+		false,
+		//true表示这个exchange不可以被client用来推送消息，仅用来进行exchange和exchange之间的绑定
+		false,
+		false,
+		nil,
+	)
+	failOnErr(err, "Failed to declare an excha"+
+		"nge")
+	
+	err = r.channel.Publish(
+		r.Exchange,
+		"",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(message),
+		})
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+}
+
+func (r *RabbitMQ) ConsumePub() {
+	err := r.channel.ExchangeDeclare(
+		r.Exchange,
+		"fanout",
+		true,
+		false,
+		//true表示这个exchange不可以被client用来推送消息，仅用来进行exchange和exchange之间的绑定
+		false,
+		false,
+		nil,
+	)
+	failOnErr(err, "Failed to declare an excha"+
+		"nge")
+	
+	//试探性创建队列，这里注意队列名称不要写
+	q, err := r.channel.QueueDeclare(
+		"", //随机生产队列名称
+		false,
+		false,
+		true,
+		false,
+		nil,
+	)
+	failOnErr(err, "Failed to declare a queue")
+	//绑定队列
+	err = r.channel.QueueBind(
+		q.Name,
+		//在pub/sub模式下，这里的key要为空
+		"",
+		r.Exchange,
+		false,
+		nil)
+	//接受消息
+	messages, err := r.channel.Consume(
+		q.Name,
+		"",
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+	forever := make(chan bool)
+	go func() {
+		for d := range messages {
+			log.Printf("Received a message: %s", d.Body)
+		}
+	}()
+	fmt.Println("退出请按 CTRL+C\n")
+	<-forever
+	
 }
