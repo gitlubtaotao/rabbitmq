@@ -6,4 +6,5 @@ func main() {
 	rabbit := RabbitMQ.NewRabbitMQSimple(
 		"imoocSimple")
 	rabbit.ConsumeSimple()
+	defer rabbit.Destroy()
 }
