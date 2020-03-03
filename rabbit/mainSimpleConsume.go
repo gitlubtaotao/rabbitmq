@@ -1,6 +1,6 @@
 package main
 
-import "rabbitmq/RabbitMQ"
+import "rabbitmq/rabbit/RabbitMQ"
 
 func main() {
 	rabbit := RabbitMQ.NewRabbitMQSimple(

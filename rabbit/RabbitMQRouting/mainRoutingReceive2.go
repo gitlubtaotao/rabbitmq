@@ -1,6 +1,6 @@
 package main
 
-import "rabbitmq/RabbitMQ"
+import "rabbitmq/rabbit/RabbitMQ"
 
 func main() {
 	rabbitmq := RabbitMQ.NewRabbitMQRouting("exImooc", "imooc_two")

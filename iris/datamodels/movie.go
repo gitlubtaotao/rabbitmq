@@ -1,5 +1,5 @@
-package main
+package datamodels
 
-func main() {
-	
+type Movie struct {
+	Name string
 }

@@ -1,9 +1,9 @@
 package main
 
-import "rabbitmq/RabbitMQ"
+import "rabbitmq/rabbit/RabbitMQ"
 
 func main()  {
-	imoocOne:=RabbitMQ.NewRabbitMQTopic("exImoocTopic","imooc.*.two")
+	imoocOne:= RabbitMQ.NewRabbitMQTopic("exImoocTopic","imooc.*.two")
 	imoocOne.RecieveTopic()
 }
 

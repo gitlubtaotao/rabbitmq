@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"rabbitmq/RabbitMQ"
+	"rabbitmq/rabbit/RabbitMQ"
 )
 
 func main() {
