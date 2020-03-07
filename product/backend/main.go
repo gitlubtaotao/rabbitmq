@@ -5,7 +5,8 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"rabbitmq/product/backend/web/controllers"
-	"rabbitmq/product/dbcon"
+	"rabbitmq/product/util"
+	
 	"rabbitmq/product/repositories"
 	"rabbitmq/product/services"
 )
@@ -19,7 +20,7 @@ func main() {
 	template := iris.HTML("./web/views", ".html").Layout("shared/layout.html").Reload(true)
 	app.RegisterView(template)
 	//	注册静态资源
-	app.Favicon("./web/assets/favicon.ico")
+	//app.Favicon("./web/assets/favicon.ico")
 	app.HandleDir("/assets", "./web/assets", iris.DirOptions{
 		Gzip: false,
 		// List the files inside the current requested directory if `IndexName` not found.
@@ -33,7 +34,7 @@ func main() {
 		_ = ctx.View("shared/error.html")
 	})
 	//连接sql服务器
-	db, err := dbcon.NewMysqlConn()
+	db, err := util.NewMysqlConn()
 	if err != nil {
 		panic(err)
 	}

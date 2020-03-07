@@ -1,4 +1,4 @@
-package dbcon
+package util
 
 import (
 	"database/sql"
@@ -7,7 +7,7 @@ import (
 
 //创建mysql 连接
 func NewMysqlConn() (db *sql.DB, err error) {
-	db, err = sql.Open("mysql", "root:qweqwe123@tcp(127.0.0.1:3306)/imooc?charset=utf8&collation=utf8mb4_general_ci&parseTime=true&loc=Local")
+	db, err = sql.Open("mysql", "root:qweqwe123@tcp(127.0.0.1:3306)/imooc?charset=utf8")
 	return
 }
 

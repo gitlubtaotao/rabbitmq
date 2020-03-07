@@ -3,7 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"rabbitmq/product/datamodels"
-	"rabbitmq/product/dbcon"
+	
 	"rabbitmq/product/util"
 	"strconv"
 )
@@ -31,7 +31,7 @@ func NewProductManager(table string, db *sql.DB) IProduct {
 
 func (p *ProductManager) Conn() (err error) {
 	if p.mysqlConn == nil {
-		mysql, err := dbcon.NewMysqlConn()
+		mysql, err := util.NewMysqlConn()
 		if err != nil {
 			return err
 		}
@@ -105,7 +105,7 @@ func (p *ProductManager) SelectByKey(productID int64) (product *datamodels.Produ
 		return nil, err
 	}
 	defer row.Close()
-	result := dbcon.GetResultRow(row)
+	result := util.GetResultRow(row)
 	if len(result) == 0 {
 		return &datamodels.Product{}, nil
 	}
@@ -126,7 +126,7 @@ func (p *ProductManager) SelectAll() (productArray []*datamodels.Product, errPro
 		return nil, err
 	}
 	
-	result := dbcon.GetResultRows(rows)
+	result := util.GetResultRows(rows)
 	if len(result) == 0 {
 		return nil, nil
 	}
