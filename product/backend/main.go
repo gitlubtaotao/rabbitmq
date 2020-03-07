@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
+	"log"
 	"rabbitmq/product/backend/web/controllers"
 	"rabbitmq/product/util"
 	
@@ -38,7 +39,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	ctx,cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	
 	//5.注册控制器
@@ -51,8 +52,9 @@ func main() {
 	
 	//运行iris
 	config := iris.WithConfiguration(iris.YAML("./config/iris.yml"))
-	_ = app.Run(
-		iris.Addr("localhost:8080"),
-		config,
-	)
+	
+	err = app.Listen(":8080", config)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

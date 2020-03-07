@@ -9,11 +9,15 @@ import (
 
 func DataToStructByTagSql(data map[string]string, obj interface{}) {
 	objValue := reflect.ValueOf(obj).Elem()
-	typeValue := objValue.Type()
+	
 	for i := 0; i < objValue.NumField(); i++ {
-		value := data[typeValue.Field(i).Tag.Get("sql")]
-		name := typeValue.Field(i).Name
-		structFieldType := typeValue.Field(i).Type
+		//获取sql对应的值
+		value := data[objValue.Type().Field(i).Tag.Get("sql")]
+		//获取对应字段的名称
+		name := objValue.Type().Field(i).Name
+		//获取对应字段类型
+		structFieldType := objValue.Field(i).Type()
+		//获取变量类型，也可以直接写"string类型"
 		val := reflect.ValueOf(value)
 		var err error
 		if structFieldType != val.Type() {
@@ -23,6 +27,7 @@ func DataToStructByTagSql(data map[string]string, obj interface{}) {
 			
 			}
 		}
+		//设置类型值
 		objValue.FieldByName(name).Set(val)
 	}
 }
@@ -58,5 +63,6 @@ func TypeConversion(value string, ntype string) (reflect.Value, error) {
 	}
 	
 	//else if .......增加其他一些类型的转换
+	
 	return reflect.ValueOf(value), errors.New("未知的类型：" + ntype)
 }

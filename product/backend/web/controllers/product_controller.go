@@ -66,6 +66,7 @@ func (p *ProductController) PostAdd() {
 
 func (p *ProductController) GetManager() mvc.View {
 	idString := p.Ctx.URLParam("id")
+	
 	id,err :=strconv.ParseInt(idString,10,16)
 	if err !=nil {
 		p.Ctx.Application().Logger().Debug(err)

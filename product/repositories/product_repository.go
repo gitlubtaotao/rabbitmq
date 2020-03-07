@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"fmt"
 	"rabbitmq/product/datamodels"
 	
 	"rabbitmq/product/util"
@@ -69,7 +70,6 @@ func (p *ProductManager) Delete(productId int64) bool {
 	}
 	sql := "delete from" + p.table + "where ID=?"
 	stmt, err := p.mysqlConn.Prepare(sql)
-	defer stmt.Close()
 	if err != nil {
 		return false
 	}
@@ -95,6 +95,7 @@ func (p *ProductManager) Update(product *datamodels.Product) (err error) {
 	}
 	return nil
 }
+
 func (p *ProductManager) SelectByKey(productID int64) (product *datamodels.Product, err error) {
 	if err = p.Conn(); err != nil {
 		return &datamodels.Product{}, err
@@ -104,13 +105,16 @@ func (p *ProductManager) SelectByKey(productID int64) (product *datamodels.Produ
 	if err != nil {
 		return nil, err
 	}
+	
 	defer row.Close()
 	result := util.GetResultRow(row)
+	fmt.Println(result)
 	if len(result) == 0 {
 		return &datamodels.Product{}, nil
 	}
+	product = &datamodels.Product{}
 	util.DataToStructByTagSql(result, product)
-	return
+	return product, nil
 }
 
 //获取所有商品
