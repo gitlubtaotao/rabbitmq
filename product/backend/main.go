@@ -49,12 +49,12 @@ func main() {
 	
 	//5.注册控制器
 	productRepository := repositories.NewProductManager("product", db)
-	productSerivce := services.NewProductService(productRepository)
-	productParty := app.Party("/product")
-	product := mvc.New(productParty)
-	product.Register(ctx, productSerivce)
-	product.Handle(new(controllers.ProductController))
+	productService := services.NewProductService(productRepository)
+	mvc.New(app.Party("/product")).Register(ctx, productService).Handle(new(controllers.ProductController))
 	
+	orderRepository := repositories.NewOrderMangerRepository("order", db)
+	orderService := services.NewOrderService(orderRepository)
+	mvc.New(app.Party("/order")).Register(ctx, orderService).Handle(new(controllers.OrderController))
 	
 	//运行iris
 	config := iris.WithConfiguration(iris.YAML("./config/iris.yml"))
