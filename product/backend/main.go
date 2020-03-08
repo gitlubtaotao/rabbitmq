@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"github.com/kataras/iris/v12"
+	
+	"github.com/kataras/iris/v12/middleware/logger"
+	"github.com/kataras/iris/v12/middleware/recover"
 	"github.com/kataras/iris/v12/mvc"
 	"log"
 	"rabbitmq/product/backend/web/controllers"
@@ -17,6 +20,8 @@ func main() {
 	app := iris.New()
 	//2.设置错误模式，在mvc模式下提示错误
 	app.Logger().SetLevel("debug")
+	app.Use(recover.New())
+	app.Use(logger.New())
 	//3.注册模板
 	template := iris.HTML("./web/views", ".html").Layout("shared/layout.html").Reload(true)
 	app.RegisterView(template)
@@ -50,9 +55,9 @@ func main() {
 	product.Register(ctx, productSerivce)
 	product.Handle(new(controllers.ProductController))
 	
+	
 	//运行iris
 	config := iris.WithConfiguration(iris.YAML("./config/iris.yml"))
-	
 	err = app.Listen(":8080", config)
 	if err != nil {
 		log.Fatal(err)
