@@ -140,5 +140,13 @@ func (o *OrderMangerRepository) SelectAll() (orders []*datamodels.Order, err err
 }
 
 func (o *OrderMangerRepository) SelectAllWithInfo() (orders map[int]map[string]string, err error) {
-	return
+	if errConn := o.Conn(); errConn != nil {
+		return nil, errConn
+	}
+	rows, errRows := o.mysqlConn.Query("Select o.ID,p.productName,o.orderStatus From imooc.order as o left join product as p on o.productID=p.ID")
+	if errRows != nil {
+		return nil, errRows
+	}
+	defer rows.Close()
+	return util.GetResultRows(rows), err
 }
