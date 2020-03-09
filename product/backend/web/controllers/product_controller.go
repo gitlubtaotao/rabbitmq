@@ -51,7 +51,7 @@ func (p *ProductController) GetAdd() mvc.View {
 
 func (p *ProductController) PostAdd() {
 	product :=&datamodels.Product{}
-	p.Ctx.Request().ParseForm()
+	_ = p.Ctx.Request().ParseForm()
 	
 	dec := util.NewDecoder(&util.DecoderOptions{TagName:"imooc"})
 	if err:= dec.Decode(p.Ctx.Request().Form,product);err!=nil {

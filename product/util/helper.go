@@ -2,8 +2,11 @@ package util
 
 import (
 	"errors"
+	"net"
+	"net/http"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -65,4 +68,23 @@ func TypeConversion(value string, ntype string) (reflect.Value, error) {
 	//else if .......增加其他一些类型的转换
 	
 	return reflect.ValueOf(value), errors.New("未知的类型：" + ntype)
+}
+
+func ClientPublicIP(r *http.Request) string {
+	var ip string
+	for _, ip = range strings.Split(r.Header.Get("X-Forwarded-For"), ",") {
+		ip = strings.TrimSpace(ip)
+		if ip != "" {
+			return ip
+		}
+	}
+	ip = strings.TrimSpace(r.Header.Get("X-Real-Ip"))
+	if ip != "" {
+		return ip
+	}
+	
+	if ip, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr)); err == nil {
+		return ip
+	}
+	return ""
 }
