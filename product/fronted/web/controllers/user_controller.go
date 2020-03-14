@@ -6,6 +6,7 @@ import (
 	"github.com/kataras/iris/v12/mvc"
 	"github.com/kataras/iris/v12/sessions"
 	"rabbitmq/product/datamodels"
+	"rabbitmq/product/encrypt"
 	"rabbitmq/product/services"
 	"rabbitmq/product/util"
 	"strconv"
@@ -67,11 +68,19 @@ func (c *UserController) PostLogin() mvc.Response {
 	
 	//3、写入用户ID到cookie中
 	util.GlobalCookie(c.Ctx, "uid", strconv.FormatInt(user.ID, 10))
-	c.Session.Set("userID", strconv.FormatInt(user.ID, 10))
+	uidByte := []byte(strconv.FormatInt(user.ID, 10))
+	uidString, err := encrypt.EnPwdCode(uidByte)
+	if err != nil {
+		fmt.Println(err)
+	}
+	//写入用户浏览器
+	util.GlobalCookie(c.Ctx, "sign", uidString)
 	IpAddress := util.ClientPublicIP(c.Ctx.Request())
 	user.IpAddress = IpAddress
-	err := c.Service.UpdateUser(user)
-	fmt.Println(err,IpAddress)
+	err = c.Service.UpdateUser(user)
+	if err != nil {
+		c.Ctx.Application().Logger().Error(err)
+	}
 	return mvc.Response{
 		Path: "/product/",
 	}

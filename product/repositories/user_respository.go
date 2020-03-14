@@ -14,6 +14,7 @@ type IUserRepository interface {
 	Select(userName string) (user *datamodels.User, err error)
 	Insert(user *datamodels.User) (userId int64, err error)
 	UpdateUser(user *datamodels.User) (err error)
+	SelectByID(userId int64) (*datamodels.User, error)
 }
 
 func NewUserRepository(table string, db *sql.DB) IUserRepository {
@@ -105,7 +106,7 @@ func (u *UserManagerRepository) UpdateUser(user *datamodels.User) (err error) {
 	if err = u.Conn(); err != nil {
 		return err
 	}
-	stmt, err := u.mysqlConn.Prepare("update " + u.table + " set nickName=?,userName=?,ipAddress=? Where ID=" + strconv.FormatInt(user.ID,10))
+	stmt, err := u.mysqlConn.Prepare("update " + u.table + " set nickName=?,userName=?,ipAddress=? Where ID=" + strconv.FormatInt(user.ID, 10))
 	if err != nil {
 		return err
 	}

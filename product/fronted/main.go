@@ -6,14 +6,12 @@ import (
 	"github.com/kataras/iris/v12/middleware/logger"
 	"github.com/kataras/iris/v12/middleware/recover"
 	"github.com/kataras/iris/v12/mvc"
-	"github.com/kataras/iris/v12/sessions"
 	"log"
 	"rabbitmq/product/fronted/middleware"
 	"rabbitmq/product/fronted/web/controllers"
 	"rabbitmq/product/repositories"
 	"rabbitmq/product/services"
 	"rabbitmq/product/util"
-	"time"
 )
 
 func main() {
@@ -46,17 +44,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sess := sessions.New(sessions.Config{
-		Cookie:  "AdminCookie",
-		Expires: 600 * time.Minute,
-	})
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	//TODO 需要简化注册register code
 	user := repositories.NewUserRepository("user", db)
 	userService := services.NewUserService(user)
 	
-	mvc.New(app.Party("/user")).Register(userService, ctx, sess.Start).Handle(new(controllers.UserController))
+	mvc.New(app.Party("/user")).Register(userService, ctx).Handle(new(controllers.UserController))
 	
 	product := repositories.NewProductManager("product", db)
 	productService := services.NewProductService(product)
@@ -64,7 +58,7 @@ func main() {
 	orderService := services.NewOrderService(order)
 	productParty := app.Party("/product")
 	productParty.Use(middleware.AuthConProduct)
-	mvc.New(productParty).Register(productService, orderService, ctx, sess.Start).Handle(new(controllers.ProductController))
+	mvc.New(productParty).Register(productService, orderService, ctx).Handle(new(controllers.ProductController))
 	
 	
 	config := iris.WithConfiguration(iris.YAML("./config/iris.yml"))
