@@ -2,8 +2,10 @@ package util
 
 import (
 	"errors"
+	"html/template"
 	"net"
 	"net/http"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -87,4 +89,32 @@ func ClientPublicIP(r *http.Request) string {
 		return ip
 	}
 	return ""
+}
+
+func GenerateFilerName(templatePath, htmlOutPath string) (*template.Template, *os.File, error) {
+	contentsTap, err := template.ParseFiles(templatePath)
+	if err != nil {
+		return &template.Template{}, &os.File{}, err
+	}
+	filer, err := GenerateStaticHtml(htmlOutPath)
+	return contentsTap, filer, err
+}
+func GenerateStaticHtml(fileName string) (filer *os.File, err error) {
+	if staticHtmlExist(fileName) {
+		err := os.Remove(fileName)
+		if err != nil {
+			return &os.File{}, err
+		}
+	}
+	//2.生成静态文件
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	if err != nil {
+		return &os.File{}, err
+	}
+	return file, err
+}
+
+func staticHtmlExist(fileName string) bool {
+	_, err := os.Stat(fileName)
+	return err == nil || os.IsExist(err)
 }
