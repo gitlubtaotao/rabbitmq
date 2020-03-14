@@ -8,6 +8,7 @@ import (
 	"github.com/kataras/iris/v12/mvc"
 	"github.com/kataras/iris/v12/sessions"
 	"log"
+	"rabbitmq/product/fronted/middleware"
 	"rabbitmq/product/fronted/web/controllers"
 	"rabbitmq/product/repositories"
 	"rabbitmq/product/services"
@@ -54,7 +55,17 @@ func main() {
 	//TODO 需要简化注册register code
 	user := repositories.NewUserRepository("user", db)
 	userService := services.NewUserService(user)
+	
 	mvc.New(app.Party("/user")).Register(userService, ctx, sess.Start).Handle(new(controllers.UserController))
+	
+	product := repositories.NewProductManager("product", db)
+	productService := services.NewProductService(product)
+	order := repositories.NewOrderMangerRepository("order", db)
+	orderService := services.NewOrderService(order)
+	productParty := app.Party("/product")
+	productParty.Use(middleware.AuthConProduct)
+	mvc.New(productParty).Register(productService, orderService, ctx, sess.Start).Handle(new(controllers.ProductController))
+	
 	
 	config := iris.WithConfiguration(iris.YAML("./config/iris.yml"))
 	err = app.Listen(":8082", config)
