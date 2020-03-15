@@ -99,6 +99,7 @@ func GenerateFilerName(templatePath, htmlOutPath string) (*template.Template, *o
 	filer, err := GenerateStaticHtml(htmlOutPath)
 	return contentsTap, filer, err
 }
+
 func GenerateStaticHtml(fileName string) (filer *os.File, err error) {
 	if staticHtmlExist(fileName) {
 		err := os.Remove(fileName)
