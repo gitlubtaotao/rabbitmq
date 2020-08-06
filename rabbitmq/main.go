@@ -19,7 +19,7 @@ const (
 	//队列名称
 	queueName = "imooc"
 	exchange  = ""
-	mqurl     = "amqp://guest:guest@127.0.0.1:5673"
+	mqurl     = "amqp://guest:guest@127.0.0.1:5672"
 )
 
 //错误处理函数
@@ -35,10 +35,15 @@ func Connect() {
 	var err error
 	//连接rabbitmq
 	conn, err = amqp.Dial(mqurl)
-	failOnErr(err, "failed to connect")
+	if err != nil{
+		failOnErr(err, "failed to connect")
+	}
 	//获取channel
 	channel, err = conn.Channel()
-	failOnErr(err, "failed to open a channel")
+	if err != nil{
+
+		failOnErr(err, "failed to open a channel")
+	}
 }
 
 //关闭rabbitmq连接
@@ -74,8 +79,10 @@ func push() {
 	}
 
 	//5.生产消息
-	channel.Publish(exchange, q.Name, false,
-		false, amqp.Publishing{
+	channel.Publish(exchange, q.Name,
+		false,
+		false,
+		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        []byte(message),
 		})
@@ -104,7 +111,9 @@ func receive() {
 		false,
 		false,
 		nil)
-	failOnErr(err, "获取消费信息异常")
+	if err != nil{
+		failOnErr(err, "获取消费信息异常")
+	}
 
 	msgForver := make(chan bool)
 
