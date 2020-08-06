@@ -1,14 +1,18 @@
 package main
 
 import (
-	
 	"fmt"
 	"rabbitmq/rabbitmq/RabbitMQ"
+	"strconv"
+	"time"
 )
 
 func main() {
 	rabbitmq := RabbitMQ.NewRabbitMQSimple("" +
 		"imoocSimple")
-	rabbitmq.PublishSimple("Hello imooc!")
+	for i := 0;i < 100;i ++ {
+		rabbitmq.PublishSimple("Hello imooc!" + strconv.Itoa(i))
+	}
+	time.Sleep(3600)
 	fmt.Println("发送成功！")
 }

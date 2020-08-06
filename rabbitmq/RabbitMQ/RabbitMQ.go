@@ -7,7 +7,7 @@ import (
 )
 
 //连接信息
-const MQURL = "amqp://imoocuser:imoocuser@127.0.0.1:5672/imooc"
+const MQURL = "amqp://guest:guest@127.0.0.1:5672/imooc"
 
 //rabbitMQ结构体
 type RabbitMQ struct {
@@ -29,7 +29,7 @@ func NewRabbitMQ(queueName string,exchange string ,key string) *RabbitMQ {
 }
 
 //断开channel 和 connection
-func (r *RabbitMQ) Destory() {
+func (r *RabbitMQ) Destroy() {
 	r.channel.Close()
 	r.conn.Close()
 }
@@ -48,11 +48,15 @@ func NewRabbitMQSimple(queueName string) *RabbitMQ {
 	var err error
     //获取connection
 	rabbitmq.conn, err = amqp.Dial(rabbitmq.Mqurl)
-	rabbitmq.failOnErr(err, "failed to connect rabb"+
-		"itmq!")
+	if err != nil{
+		rabbitmq.failOnErr(err, "failed to connect rabb"+
+			"itmq!")
+	}
 	//获取channel
 	rabbitmq.channel, err = rabbitmq.conn.Channel()
-	rabbitmq.failOnErr(err, "failed to open a channel")
+	if err != nil {
+		rabbitmq.failOnErr(err, "failed to open a channel")
+	}
 	return rabbitmq
 }
 
@@ -134,14 +138,12 @@ func (r *RabbitMQ) ConsumeSimple() {
 		for d := range msgs {
 			//消息逻辑处理，可以自行设计逻辑
 			log.Printf("Received a message: %s", d.Body)
-
 		}
 	}()
-
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
-
 }
+
 
 
 
